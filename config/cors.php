@@ -19,7 +19,9 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:5173'],
+    'allowed_origins' => [
+        'https://crewline-frontend-production.up.railway.app',
+    ],
 
     'allowed_origins_patterns' => [],
 
