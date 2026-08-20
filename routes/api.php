@@ -2,32 +2,29 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AdminUserController;
 
 
 /*
 |--------------------------------------------------------------------------
-| Public Authentication Routes
+| Public Authentication
 |--------------------------------------------------------------------------
 */
 
 /*
- * Normal Registration
- *
- * Allowed:
- * employee
- * freelancer
- * client
- *
- * Admin is NOT allowed.
- */
-Route::post('/register', [AuthController::class, 'register']);
+|--------------------------------------------------------------------------
+| LOGIN
+|--------------------------------------------------------------------------
+|
+| Anyone can only login.
+| Registration is NOT public.
+|
+*/
 
-
-/*
- * Login
- */
-Route::post('/login', [AuthController::class, 'login']);
-
+Route::post('/login', [
+    AuthController::class,
+    'login'
+]);
 
 
 /*
@@ -39,31 +36,81 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
 
     /*
-     * Get currently authenticated user
-     */
-    Route::get('/me', [AuthController::class, 'me']);
+    |--------------------------------------------------------------------------
+    | Current User
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/me', [
+        AuthController::class,
+        'me'
+    ]);
 
 
     /*
-     |--------------------------------------------------------------------------
-     | Admin Routes
-     |--------------------------------------------------------------------------
-     */
+    |--------------------------------------------------------------------------
+    | Logout
+    |--------------------------------------------------------------------------
+    */
 
-    /*
-     * Secure Admin Registration
-     *
-     * Only Admin can create another Admin.
-     */
-    Route::post(
-        '/admin/register',
-        [AuthController::class, 'registerAdmin']
-    )->middleware('role:admin');
+    Route::post('/logout', [
+        AuthController::class,
+        'logout'
+    ]);
 
 
     /*
-     * Admin Test
-     */
+    |--------------------------------------------------------------------------
+    | Admin Only
+    |--------------------------------------------------------------------------
+    */
+
+    Route::middleware('role:admin')->prefix('admin')->group(function () {
+
+        /*
+        | Get all users
+        */
+        Route::get('/users', [
+            AdminUserController::class,
+            'index'
+        ]);
+
+
+        /*
+        | Create user
+        */
+        Route::post('/users', [
+            AdminUserController::class,
+            'store'
+        ]);
+
+
+        /*
+        | Update user
+        */
+        Route::put('/users/{user}', [
+            AdminUserController::class,
+            'update'
+        ]);
+
+
+        /*
+        | Delete user
+        */
+        Route::delete('/users/{user}', [
+            AdminUserController::class,
+            'destroy'
+        ]);
+
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Role Test Routes
+    |--------------------------------------------------------------------------
+    */
+
     Route::get('/admin/test', function () {
 
         return response()->json([
@@ -73,13 +120,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     })->middleware('role:admin');
 
-
-
-    /*
-     |--------------------------------------------------------------------------
-     | Employee Routes
-     |--------------------------------------------------------------------------
-     */
 
     Route::get('/employee/test', function () {
 
@@ -91,13 +131,6 @@ Route::middleware('auth:sanctum')->group(function () {
     })->middleware('role:employee');
 
 
-
-    /*
-     |--------------------------------------------------------------------------
-     | Freelancer Routes
-     |--------------------------------------------------------------------------
-     */
-
     Route::get('/freelancer/test', function () {
 
         return response()->json([
@@ -107,13 +140,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     })->middleware('role:freelancer');
 
-
-
-    /*
-     |--------------------------------------------------------------------------
-     | Client Routes
-     |--------------------------------------------------------------------------
-     */
 
     Route::get('/client/test', function () {
 
